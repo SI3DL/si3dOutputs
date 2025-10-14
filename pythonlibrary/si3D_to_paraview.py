@@ -29,7 +29,7 @@ import os
 import time
 from datetime import datetime, timedelta
 import vtk
-from vtk.util.numpy_support import numpy_to_vtk
+from vtk.util.numpy_support import numpy_to_vtk  # type: ignore
 
 def is_eof(f):
     cur = f.tell()    # save current position
@@ -43,7 +43,7 @@ def si3D_to_paraview(pathfile, pathsave, startdate, deltaZ, dx, dz, dt, iTurb, i
     # Function to convert SI3D binary files to vtk for ParaView visualization
 
     # Constants
-    FileName3D = 'si3d_3D'
+    FileName3D = '3d_si3d'
     PlaneName = 'plane_2'
     outputFile = 'si3d'
     FileNameZ = 'si3d_layer.txt'
@@ -66,6 +66,7 @@ def si3D_to_paraview(pathfile, pathsave, startdate, deltaZ, dx, dz, dt, iTurb, i
     del dz
 
     # Creation of the .pvd file to add time to the series of paraview files
+    print('Opening files')
     os.chdir(pathsave)
     # Create and open the .pvd file
     fidPV = open(outputFile + '.pvd', 'wt+')
@@ -137,9 +138,9 @@ def si3D_to_paraview(pathfile, pathsave, startdate, deltaZ, dx, dz, dt, iTurb, i
 
         st3d = is_eof(fid3D)
         stpl = is_eof(fidPL)
-        sttr = np.full(nTracer, np.nan)
 
         if nTracer > 0:
+            sttr = np.full(nTracer, np.nan)
             for tr in range(0, nTracer):
                 _ = np.fromfile(fidTr[tr], count=1, dtype='int32')
                 sttr[tr] = is_eof(fidTr[tr])
@@ -377,7 +378,8 @@ def si3D_to_paraview(pathfile, pathsave, startdate, deltaZ, dx, dz, dt, iTurb, i
                 if deltaZ:
                     layer = np.concatenate(([1], layer[:]))
                     depth = np.concatenate((depth[:], [depth[-1] + ddz]))
-                    zp = -depth
+                    idz = np.isin(layer, zp)
+                    zp = -depth[idz]
                 else:
                     zp = -(zp - 1) * ddz
                 xp = (xg[0, :, 0] - 1) * dx
@@ -512,6 +514,10 @@ def si3D_to_paraview(pathfile, pathsave, startdate, deltaZ, dx, dz, dt, iTurb, i
             T_vtk = numpy_to_vtk(Tv, deep=True)
             T_vtk.SetName("T(C)")
             grid.GetPointData().AddArray(T_vtk)
+            
+            l_vtk = numpy_to_vtk(lv, deep=True)
+            l_vtk.SetName("l(m)")
+            grid.GetPointData().AddArray(l_vtk)
 
             V = np.column_stack((uv, vv, wv))
             V = V.flatten()
@@ -589,7 +595,7 @@ def si3D_to_paraview(pathfile, pathsave, startdate, deltaZ, dx, dz, dt, iTurb, i
             n_frames = n - 1
 
         end2 = time.time()
-        print('Time to create vtk file for time frame ' + str(n) + ' is ' + str(round(end2 - beg2, 3)) + ' seconds')
+        print(' Time to create vtk file for time frame ' + str(n) + ' is ' + str(round(end2 - beg2, 3)) + ' seconds')
 
     fid3D.close()
     fidPL.close()
@@ -617,6 +623,6 @@ def si3D_to_paraview(pathfile, pathsave, startdate, deltaZ, dx, dz, dt, iTurb, i
     ParaviewRef.to_csv('ParaviewRef.txt', sep='\t', index=False)
 
     end1 = time.time()
-    print('Time needed to run all the code is ' + str(round((end1 - beg1) / 60, 2)) + ' minutes')
+    print('Total time needed to run is ' + str(round((end1 - beg1) / 60, 2)) + ' minutes')
 
     return n_frames
