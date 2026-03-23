@@ -47,7 +47,7 @@ def si3D_to_paraview(pathfile, pathsave, startdate, deltaZ, dx, dz, dt, iTurb, i
     PlaneName = 'plane_2'
     outputFile = 'si3d'
     FileNameZ = 'si3d_layer.txt'
-    fileTracer = 'tracer_'
+    fileTracer = '3d_trac'
 
     # Move to working directory
     os.chdir(pathfile)
@@ -76,6 +76,7 @@ def si3D_to_paraview(pathfile, pathsave, startdate, deltaZ, dx, dz, dt, iTurb, i
     fidPV.write('%s\n' % '\t<Collection>')
 
     # Reading binary files
+    print('Reading binary files')
     os.chdir(pathfile)
     fid3D = open(FileName3D, 'rb')
     fidPL = open(PlaneName, 'rb')
@@ -144,6 +145,7 @@ def si3D_to_paraview(pathfile, pathsave, startdate, deltaZ, dx, dz, dt, iTurb, i
             for tr in range(0, nTracer):
                 _ = np.fromfile(fidTr[tr], count=1, dtype='int32')
                 sttr[tr] = is_eof(fidTr[tr])
+                
         if (st3d == 0) or (stpl == 0) or (np.sum(sttr) == 0):
             istep[n] = np.fromfile(fid3D, count=1, dtype='int32')
             year1[n] = np.fromfile(fid3D, count=1, dtype='int32')

@@ -49,13 +49,14 @@ def node_si3D_to_python(file, TimeEndSim, dt, ipt, ntracer, tracer_list, startDa
     im = int(float(line0[4:7]))
     jm = int(float(line0[13:16]))
     km = int(float(line0[23:26]))
-    km += 1
     dtout = dt * ipt / 3600
     line1 = fid.readline()
     line2 = fid.readline()
     line3 = fid.readline()
     line4 = fid.readline()
     ntime = 0
+    # if ntracer != 0:
+    km += 1
 
     del line1, line2, line3, line4, headerline, runNumber, im, jm
 
@@ -182,6 +183,15 @@ def node_si3D_to_python(file, TimeEndSim, dt, ipt, ntracer, tracer_list, startDa
     h[h == -99] = np.nan
     if ntracer != 0:
         tr[tr == -99] = np.nan
+        
+    if ntracer == 0:
+        z = z[:-1, :]
+        u = u[:-1, :]
+        v = v[:-1, :]
+        w = w[:-1, :]
+        Av = Av[:-1, :]
+        Dv = Dv[:-1, :]
+        s = s[:-1, :]          
 
     # Creating the dictionary for the node.
     dummy = {}
