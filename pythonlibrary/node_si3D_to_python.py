@@ -118,7 +118,7 @@ def node_si3D_to_python(file, TimeEndSim, dt, ipt, ntracer, tracer_list, startDa
             del data1, data2
     elif ntracer != 0:
         tr = np.empty((km, int(TimeEndSim / dt / ipt) + 1, ntracer)) * np.nan
-        data1 = np.fromfile(fid, count=35, sep=' ', dtype=np.float32)
+        data1 = np.fromfile(fid, count=10 + ntracer, sep=' ', dtype=np.float32)
         timesim[ntime] = data1[0]
         h[ntime] = data1[2]
         z[0, ntime] = data1[3]
@@ -131,22 +131,23 @@ def node_si3D_to_python(file, TimeEndSim, dt, ipt, ntracer, tracer_list, startDa
         tr[0, ntime, :] = data1[10:10 + ntracer]
 
         # Read rest of rows for initial time t =0
-        data2 = np.fromfile(fid, count=32 * (km - 1), sep=' ', dtype=np.float32)
-        z[1:km, ntime] = data2[0:32 * (km - 1):32]
-        u[1:km, ntime] = data2[1:32 * (km - 1):32]
-        v[1:km, ntime] = data2[2:32 * (km - 1):32]
-        w[1:km, ntime] = data2[3:32 * (km - 1):32]
-        Av[1:km, ntime] = data2[4:32 * (km - 1):32]
-        Dv[1:km, ntime] = data2[5:32 * (km - 1):32]
-        s[1:km, ntime] = data2[6:32 * (km - 1):32]
+        cter = 7 + ntracer
+        data2 = np.fromfile(fid, count=(cter) * (km - 1), sep=' ', dtype=np.float32)
+        z[1:km, ntime] = data2[0:cter * (km - 1):cter]
+        u[1:km, ntime] = data2[1:cter * (km - 1):cter]
+        v[1:km, ntime] = data2[2:cter * (km - 1):cter]
+        w[1:km, ntime] = data2[3:cter * (km - 1):cter]
+        Av[1:km, ntime] = data2[4:cter * (km - 1):cter]
+        Dv[1:km, ntime] = data2[5:cter * (km - 1):cter]
+        s[1:km, ntime] = data2[6:cter * (km - 1):cter]
 
         for i in range(0, ntracer):
-            tr[1:km, ntime, i] = data2[7 + i:32 * (km - 1):32]
+            tr[1:km, ntime, i] = data2[7 + i:cter * (km - 1):cter]
         del data1, data2
 
         while (timesim[ntime] + dtout) <= TimeEndSimhrs and is_eof(fid) is False:
             ntime += 1
-            data1 = np.fromfile(fid, count=35, sep=' ', dtype=np.float32)
+            data1 = np.fromfile(fid, count=10 + ntracer, sep=' ', dtype=np.float32)
             timesim[ntime] = data1[0]
             h[ntime] = data1[2]
             z[0, ntime] = data1[3]
@@ -157,17 +158,16 @@ def node_si3D_to_python(file, TimeEndSim, dt, ipt, ntracer, tracer_list, startDa
             Dv[0, ntime] = data1[8]
             s[0, ntime] = data1[9]
             tr[0, ntime, :] = data1[10:10 + ntracer]
-
-            data2 = np.fromfile(fid, count=32 * (km - 1), sep=' ', dtype=np.float32)
-            z[1:km, ntime] = data2[0:32 * (km - 1):32]
-            u[1:km, ntime] = data2[1:32 * (km - 1):32]
-            v[1:km, ntime] = data2[2:32 * (km - 1):32]
-            w[1:km, ntime] = data2[3:32 * (km - 1):32]
-            Av[1:km, ntime] = data2[4:32 * (km - 1):32]
-            Dv[1:km, ntime] = data2[5:32 * (km - 1):32]
-            s[1:km, ntime] = data2[6:32 * (km - 1):32]
+            data2 = np.fromfile(fid, count=cter * (km - 1), sep=' ', dtype=np.float32)
+            z[1:km, ntime] = data2[0:cter * (km - 1):cter]
+            u[1:km, ntime] = data2[1:cter * (km - 1):cter]
+            v[1:km, ntime] = data2[2:cter * (km - 1):cter]
+            w[1:km, ntime] = data2[3:cter * (km - 1):cter]
+            Av[1:km, ntime] = data2[4:cter * (km - 1):cter]
+            Dv[1:km, ntime] = data2[5:cter * (km - 1):cter]
+            s[1:km, ntime] = data2[6:cter * (km - 1):cter]
             for i in range(0, ntracer):
-                tr[1:km, ntime, i] = data2[7 + i:32 * (km - 1):32]
+                tr[1:km, ntime, i] = data2[7 + i:cter * (km - 1):cter]
 
             del data1, data2
     fid.close()

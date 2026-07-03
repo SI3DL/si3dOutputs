@@ -145,8 +145,9 @@ def si3D_to_paraview(pathfile, pathsave, startdate, deltaZ, dx, dz, dt, iTurb, i
             for tr in range(0, nTracer):
                 _ = np.fromfile(fidTr[tr], count=1, dtype='int32')
                 sttr[tr] = is_eof(fidTr[tr])
-                
-        if (st3d == 0) or (stpl == 0) or (np.sum(sttr) == 0):
+            
+        sttr_sum = np.sum(sttr)
+        if (st3d == 0) or (stpl == 0) or (sttr_sum == 0):
             istep[n] = np.fromfile(fid3D, count=1, dtype='int32')
             year1[n] = np.fromfile(fid3D, count=1, dtype='int32')
             month1[n] = np.fromfile(fid3D, count=1, dtype='int32')
