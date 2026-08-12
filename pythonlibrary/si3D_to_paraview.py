@@ -502,7 +502,7 @@ def si3D_to_paraview(pathfile, pathsave, startdate, deltaZ, dx, dz, dt, iTurb, i
             wv = df['wv'].values
             # To save data into .vts file for visualization in paraview
             os.chdir(pathsave)
-            outputname = outputFile + '_' + str(round(istep[n] * dt / 3600, 2))
+            outputname = outputFile + '_' + str(round(istep[n] * dt / 3600, 4))
             
             fidPV.write('%s' % '\t\t<DataSet timestep="' + str(istep[n] * dt) + '" file="' + outputname + '.vts"/>\n')
 
